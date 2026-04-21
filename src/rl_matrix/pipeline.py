@@ -60,7 +60,9 @@ def play_match(env, agent):
     scores = {"RL_Agent": 0.0, "Heuristic": 0.0}
     banned_actions = []
     turn = 1
-    current_player = "RL_Agent"
+    step_number = 1
+    current_player = "Heuristic"
+    steps = []
 
     while not done:
         valid_actions = [action for action in env.action_space if action not in banned_actions]
@@ -75,6 +77,20 @@ def play_match(env, agent):
         state, reward, done, info = env.step(action)
         scores[current_player] += reward
 
+        steps.append(
+            {
+                "step": step_number,
+                "turn": turn,
+                "player": current_player,
+                "action": action,
+                "reward": reward,
+                "info": info,
+                "board": env.board.copy(),
+                "scores": scores.copy(),
+            }
+        )
+        step_number += 1
+
         if "Traced back" in info:
             banned_actions.append(action)
         else:
@@ -86,6 +102,7 @@ def play_match(env, agent):
         "scores": scores,
         "turns": turn,
         "board": env.board.copy(),
+        "steps": steps,
     }
 
 

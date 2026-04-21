@@ -23,6 +23,30 @@ def main():
     result = play_match(env, agent)
 
     scores = result["scores"]
+    steps = result.get("steps", [])
+
+    print("=" * 40)
+    print("MATCH STEPS")
+    print("=" * 40)
+    if not steps:
+        print("No steps were recorded.")
+    else:
+        for step in steps:
+            print(
+                f"Step {step['step']} | Turn {step['turn']} | "
+                f"Player: {step['player']} | Action: {step['action']}"
+            )
+            print(f"Reward: {step['reward']:.2f}")
+            print(
+                f"Scores -> RL Agent: {step['scores']['RL_Agent']:.2f}, "
+                f"Heuristic: {step['scores']['Heuristic']:.2f}"
+            )
+            if step["info"]:
+                print(f"Info: {step['info']}")
+            print("Board:")
+            print(step["board"])
+            print("-" * 40)
+
     print("=" * 40)
     print("MATCH COMPLETE")
     print("=" * 40)
