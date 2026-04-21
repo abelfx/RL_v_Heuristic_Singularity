@@ -29,24 +29,39 @@ def train_agent(
         state = env.reset()
         done = False
         episode_memory = []
+        banned_actions = []
 
         while not done:
-            action = agent.choose_action(state)
-            next_state, reward, done, _ = env.step(action)
+            valid_actions = [
+                action for action in env.action_space if action not in banned_actions
+            ]
+            if not valid_actions:
+                break
+
+            action = agent.choose_action(state, valid_actions=valid_actions)
+            next_state, reward, done, info = env.step(action)
             episode_memory.append((state, action, reward, next_state, done))
-            state = next_state
+
+            if "Traced back" in info:
+                banned_actions.append(action)
+            else:
+                banned_actions = []
+                state = next_state
 
         episode_memory.sort(key=lambda transition: abs(transition[2]), reverse=True)
 
+        episode_td_error = 0.0
+
         for state_i, action_i, reward_i, next_state_i, done_i in episode_memory:
-            agent.learn(state_i, action_i, reward_i, next_state_i, done_i)
+            error = agent.learn(state_i, action_i, reward_i, next_state_i, done_i)
+            episode_td_error += error
 
         agent.decay_epsilon()
 
         if (episode + 1) % log_every == 0:
             print(
-                f"Episode {episode + 1} completed. "
-                f"Exploration rate: {agent.epsilon:.5f}"
+                f"Episode {episode + 1} | "
+                f"Epsilon: {agent.epsilon:.3f} "
             )
 
     return env, agent
