@@ -129,4 +129,15 @@ ruff check .
 ## Notes
 
 - Current environment fills the first available empty cell by design.
-- Model is saved as a Python pickle (`.pkl`) and is Python-version dependent.
+
+## Pretrained Model
+
+You can download a pretrained Q-table here:
+
+- [Google Drive model file](https://drive.google.com/file/d/19vLQvng8m5azFebSLcD8YO0JVklyoyzc/view?usp=sharing)
+
+After downloading, place it at `models/matrix_q_table.pkl` and run:
+
+```bash
+python scripts/evaluate.py --model models/matrix_q_table.pkl
+```
