@@ -54,7 +54,8 @@ RL/
 │   └── .gitkeep
 ├── scripts/
 │   ├── train.py
-│   └── evaluate.py
+│   ├── evaluate.py
+│   └── replay_ui.py
 └── src/
     └── rl_matrix/
         ├── __init__.py
@@ -88,7 +89,13 @@ python scripts/train.py --episodes 200000 --out models/matrix_q_table.pkl
 python scripts/evaluate.py --model models/matrix_q_table.pkl
 ```
 
-### 4) Optional dev tools
+### 4) Replay with UI
+
+```bash
+python scripts/replay_ui.py --model models/matrix_q_table.pkl --interval 1.0
+```
+
+### 5) Optional dev tools
 
 ```bash
 pip install -r requirements-dev.txt
@@ -114,6 +121,28 @@ ruff check .
 ### `scripts/evaluate.py`
 
 - `--model` path to pickled Q-table.
+
+### `scripts/replay_ui.py`
+
+- `--model` path to pickled Q-table.
+- `--interval` delay in seconds between replay frames (default: `1.0`).
+
+---
+
+## Replay UI (separate from evaluate)
+
+Use the UI replay script when you want a visual, step-by-step match view:
+
+```bash
+python scripts/replay_ui.py --model models/matrix_q_table.pkl --interval 1.0
+```
+
+It shows:
+- animated board updates for every step,
+- current player, turn, action, reward, and info message,
+- live score panel and final winner summary.
+
+Use `scripts/evaluate.py` for plain terminal/CI output.
 
 ---
 

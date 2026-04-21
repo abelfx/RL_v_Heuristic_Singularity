@@ -70,6 +70,7 @@ def train_agent(
 def play_match(env, agent):
     agent.epsilon = 0.0
     state = env.reset()
+    initial_board = env.board.copy()
     done = False
 
     scores = {"RL_Agent": 0.0, "Heuristic": 0.0}
@@ -117,6 +118,7 @@ def play_match(env, agent):
         "scores": scores,
         "turns": turn,
         "board": env.board.copy(),
+        "initial_board": initial_board,
         "steps": steps,
     }
 
@@ -128,10 +130,36 @@ def save_q_table(agent, output_path):
         pickle.dump(agent.q_table, file_obj)
 
 
+def _resolve_model_path(path):
+    input_path = Path(path).expanduser()
+    project_root = Path(__file__).resolve().parents[2]
+
+    candidates = []
+    if input_path.is_absolute():
+        candidates.append(input_path)
+    else:
+        candidates.append(Path.cwd() / input_path)
+        candidates.append(project_root / input_path)
+        if input_path.parent == Path("."):
+            candidates.append(project_root / "models" / input_path.name)
+
+    for candidate in candidates:
+        if candidate.exists() and candidate.is_file():
+            return candidate
+
+    checked_paths = "\n".join(f"- {candidate}" for candidate in candidates)
+    raise FileNotFoundError(
+        "Could not find model file. Checked:\n"
+        f"{checked_paths}\n"
+        "Tip: pass --model models/<file>.pkl or an absolute path."
+    )
+
+
 def load_agent_from_qtable(path):
     env = MatrixGame()
     agent = QLearningAgent(action_space=env.action_space)
-    with Path(path).open("rb") as file_obj:
+    model_path = _resolve_model_path(path)
+    with model_path.open("rb") as file_obj:
         q_table = pickle.load(file_obj)
     agent.q_table = q_table
     agent.epsilon = 0.0
